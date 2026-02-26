@@ -152,27 +152,34 @@ class AvitoScraper(BaseScraper):
             location = ad.get("location", "")
             city = location.split(",")[0].strip() if location else None
 
-            # Params (year, fuel, transmission)
+            # Description text from seller
+            description = ad.get("body") or ad.get("description") or ad.get("text") or ""
+
+            # Params (year, fuel, transmission, mileage)
             year = None
             fuel = None
             transmission = None
             mileage = None
 
             params = ad.get("params", {})
-            for param in params.get("secondary", []):
-                key = param.get("key", "")
-                value = param.get("value", "")
+            # Check all param sections for all fields
+            all_params = (
+                params.get("primary", []) +
+                params.get("secondary", []) +
+                params.get("extra", [])
+            )
+            for param in all_params:
+                key = (param.get("key") or "").lower()
+                value = param.get("value")
+                if not value:
+                    continue
                 if key == "regdate":
                     year = value
                 elif key == "fuel":
                     fuel = value
-                elif key == "bv":
+                elif key in ("bv", "gearbox", "transmission"):
                     transmission = value
-
-            for param in params.get("primary", []):
-                key = param.get("key", "")
-                value = param.get("value")
-                if key == "mileage_exact" and value:
+                elif key in ("mileage_exact", "mileage", "km", "kilometrage"):
                     mileage = str(value)
 
             # Seller type
@@ -210,6 +217,7 @@ class AvitoScraper(BaseScraper):
                 "seller_type": seller_type,
                 "source_id": ad_id,
                 "posted_at": posted_at,
+                "description": description.strip() if description else None,
             }
             self.save_listing(listing)
 

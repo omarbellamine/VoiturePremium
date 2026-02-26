@@ -118,6 +118,7 @@ def export_to_json(db_path: str = None, output_path: str = None):
             "imageUrl": listing.get("image_url"),
             "sellerType": listing.get("seller_type"),
             "postedAt": listing.get("posted_at"),
+            "description": listing.get("description"),
             "scrapedAt": listing.get("scraped_at"),
         })
 

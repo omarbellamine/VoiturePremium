@@ -166,6 +166,12 @@ class MoteurScraper(BaseScraper):
         if seller_link:
             seller_type = "Professionnel"
 
+        # Description text
+        description = None
+        desc_el = soup.select_one("div.description_block, div.detail_description, div.ads_description, div.description")
+        if desc_el:
+            description = desc_el.get_text(strip=True)
+
         # Try to extract posting date
         posted_at = None
         date_key = specs.get("date") or specs.get("date de publication") or specs.get("mise en ligne")
@@ -178,11 +184,11 @@ class MoteurScraper(BaseScraper):
 
         self._save(brand, url, title, price_text, year, mileage,
                    fuel, transmission, city, phone, image_url, listing_id,
-                   seller_type, posted_at)
+                   seller_type, posted_at, description)
 
     def _save(self, brand, url, title, price_text, year, mileage,
               fuel, transmission, city, phone, image_url, listing_id,
-              seller_type=None, posted_at=None):
+              seller_type=None, posted_at=None, description=None):
         listing = {
             "url": url,
             "title": title or f"{brand} - Moteur.ma",
@@ -199,6 +205,7 @@ class MoteurScraper(BaseScraper):
             "seller_type": seller_type,
             "source_id": listing_id or url.rstrip("/").split("/")[-1],
             "posted_at": posted_at,
+            "description": description,
         }
         self.save_listing(listing)
 

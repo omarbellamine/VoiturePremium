@@ -1,11 +1,10 @@
 "use client";
 
-import { getAllListings, getUniqueBrands, getUniqueCities, getUniqueFuelTypes, getRecommendedListing } from "@/lib/data";
+import { getAllListings, getUniqueBrands, getUniqueCities, getUniqueFuelTypes } from "@/lib/data";
 import { useFilters } from "@/hooks/useFilters";
 import SearchBar from "@/components/SearchBar";
 import FilterBar from "@/components/FilterBar";
 import QuickFilters from "@/components/QuickFilters";
-import RecommendedCard from "@/components/RecommendedCard";
 import ListingGrid from "@/components/ListingGrid";
 
 export default function HomePage() {
@@ -16,9 +15,6 @@ export default function HomePage() {
   const brands = getUniqueBrands(allListings);
   const cities = getUniqueCities(allListings);
   const fuelTypes = getUniqueFuelTypes(allListings);
-
-  const recommended = getRecommendedListing(allListings);
-  const hasActiveFilters = activeFilterCount > 0;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6">
@@ -59,13 +55,6 @@ export default function HomePage() {
           fuelTypes={fuelTypes}
         />
       </div>
-
-      {/* Recommended */}
-      {recommended && !hasActiveFilters && (
-        <div className="mb-8">
-          <RecommendedCard listing={recommended} />
-        </div>
-      )}
 
       {/* Results count */}
       <p className="text-sm text-zinc-500 mb-5">

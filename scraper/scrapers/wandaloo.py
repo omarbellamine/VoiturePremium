@@ -160,6 +160,12 @@ class WandalooScraper(BaseScraper):
         # Phone number
         phone = self._extract_phone(soup)
 
+        # Description text
+        description = None
+        desc_el = soup.select_one("div.description, div.texte, div#description, div.annonce-text, p.description")
+        if desc_el:
+            description = desc_el.get_text(strip=True)
+
         # Try to extract posting date
         posted_at = None
         date_key = specs.get("date") or specs.get("date de publication") or specs.get("publiée le")
@@ -173,11 +179,11 @@ class WandalooScraper(BaseScraper):
 
         self._save(brand, url, title, price_text, city,
                    image_url, fuel_type, year, mileage_text,
-                   phone, transmission, posted_at)
+                   phone, transmission, posted_at, description)
 
     def _save(self, brand, url, title, price_text, city,
               image_url, fuel_type, year_text, mileage_text,
-              phone, transmission=None, posted_at=None):
+              phone, transmission=None, posted_at=None, description=None):
         listing = {
             "url": url,
             "title": title or f"{brand} - Wandaloo",
@@ -194,6 +200,7 @@ class WandalooScraper(BaseScraper):
             "seller_type": None,
             "source_id": url.rstrip("/").split("/")[-1].replace(".html", ""),
             "posted_at": posted_at,
+            "description": description,
         }
         self.save_listing(listing)
 

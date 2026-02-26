@@ -35,6 +35,7 @@ def init_db(conn: sqlite3.Connection):
             image_url TEXT,
             seller_type TEXT,
             posted_at TEXT,
+            description TEXT,
             scraped_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
@@ -59,6 +60,7 @@ def upsert_listing(conn: sqlite3.Connection, listing: dict) -> bool:
                 title = ?, brand = ?, model = ?, price = ?, year = ?,
                 mileage = ?, fuel_type = ?, transmission = ?, city = ?,
                 phone = ?, image_url = ?, seller_type = ?, posted_at = COALESCE(?, posted_at),
+                description = COALESCE(?, description),
                 scraped_at = CURRENT_TIMESTAMP
             WHERE url = ?
         """, (
@@ -66,7 +68,8 @@ def upsert_listing(conn: sqlite3.Connection, listing: dict) -> bool:
             listing.get("price"), listing.get("year"), listing.get("mileage"),
             listing.get("fuel_type"), listing.get("transmission"),
             listing.get("city"), listing.get("phone"), listing.get("image_url"),
-            listing.get("seller_type"), listing.get("posted_at"), listing["url"],
+            listing.get("seller_type"), listing.get("posted_at"),
+            listing.get("description"), listing["url"],
         ))
         conn.commit()
         return False
@@ -75,8 +78,8 @@ def upsert_listing(conn: sqlite3.Connection, listing: dict) -> bool:
             INSERT INTO listings (
                 source, source_id, url, title, brand, model, price, year,
                 mileage, fuel_type, transmission, city, phone, image_url,
-                seller_type, posted_at
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                seller_type, posted_at, description
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             listing.get("source"), listing.get("source_id"), listing["url"],
             listing.get("title"), listing.get("brand"), listing.get("model"),
@@ -84,6 +87,7 @@ def upsert_listing(conn: sqlite3.Connection, listing: dict) -> bool:
             listing.get("fuel_type"), listing.get("transmission"),
             listing.get("city"), listing.get("phone"), listing.get("image_url"),
             listing.get("seller_type"), listing.get("posted_at"),
+            listing.get("description"),
         ))
         conn.commit()
         return True

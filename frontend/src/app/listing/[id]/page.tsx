@@ -2,6 +2,8 @@ import { getAllListings, getListingById, getSimilarListings } from "@/lib/data";
 import ContactInfo from "@/components/ContactInfo";
 import DealScore from "@/components/DealScore";
 import VehicleInsights from "@/components/VehicleInsights";
+import OwnershipCost from "@/components/OwnershipCost";
+import ModelHistory from "@/components/ModelHistory";
 import Link from "next/link";
 
 function formatPrice(price: number | null): string {
@@ -162,6 +164,21 @@ export default function ListingDetailPage({
               </div>
             ))}
           </div>
+
+          {/* Seller description */}
+          {listing.description && (
+            <div className="bg-surface-light border border-white/[0.04] rounded-2xl p-6 space-y-3">
+              <div className="flex items-center gap-2.5">
+                <svg className="w-4 h-4 text-gold/60" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M8 10h.01M12 10h.01M16 10h.01M9 16H5a2 2 0 01-2-2V6a2 2 0 012-2h14a2 2 0 012 2v8a2 2 0 01-2 2h-5l-5 5v-5z" />
+                </svg>
+                <h3 className="text-sm font-semibold text-white">Description du vendeur</h3>
+              </div>
+              <p className="text-sm text-zinc-400 leading-relaxed whitespace-pre-line">
+                {listing.description}
+              </p>
+            </div>
+          )}
         </div>
 
         {/* Right: Contact sidebar + Deal Score (2 cols) */}
@@ -213,9 +230,19 @@ export default function ListingDetailPage({
         </div>
       </div>
 
+      {/* Cost of Ownership */}
+      <div className="mt-14 pt-10 border-t border-white/[0.04]">
+        <OwnershipCost listing={listing} />
+      </div>
+
       {/* Vehicle Insights — Pros & Cons */}
       <div className="mt-14 pt-10 border-t border-white/[0.04]">
         <VehicleInsights listing={listing} />
+      </div>
+
+      {/* Brand History */}
+      <div className="mt-14 pt-10 border-t border-white/[0.04]">
+        <ModelHistory brand={listing.brand} />
       </div>
 
       {/* Similar listings */}

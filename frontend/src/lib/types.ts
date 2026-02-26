@@ -15,6 +15,7 @@ export interface Listing {
   imageUrl: string | null;
   sellerType: string | null;
   postedAt: string | null;
+  description: string | null;
   scrapedAt: string | null;
   estimatedPrice?: number;
   dealScore?: number;
