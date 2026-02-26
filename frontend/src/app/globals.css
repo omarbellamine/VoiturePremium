@@ -1,0 +1,63 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #09090b;
+  --foreground: #f4f4f5;
+  --gold: #C9A84C;
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Selection */
+::selection {
+  background: rgba(201, 168, 76, 0.3);
+  color: #fff;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #27272a;
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #C9A84C;
+}
+
+/* Select dropdown arrow override */
+select {
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%2371717a' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+  background-position: right 0.5rem center;
+  background-repeat: no-repeat;
+  background-size: 1.5em 1.5em;
+  padding-right: 2.5rem;
+}
+
+/* Number input spinner hide */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type="number"] {
+  -moz-appearance: textfield;
+}
+
+/* Smooth page transitions */
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

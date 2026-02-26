@@ -1,0 +1,76 @@
+name: Daily Scrape & Deploy
+
+on:
+  schedule:
+    # 6:00 UTC = 7:00 AM Morocco time (UTC+1)
+    - cron: '0 6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
+jobs:
+  scrape-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install Python dependencies
+        run: pip install -r scraper/requirements.txt
+
+      - name: Install Playwright browsers
+        run: playwright install chromium --with-deps
+
+      - name: Run scrapers
+        run: cd scraper && python main.py
+        continue-on-error: true
+
+      - name: Verify listings.json exists
+        run: |
+          if [ ! -f frontend/public/data/listings.json ]; then
+            echo "listings.json not found, creating empty placeholder"
+            mkdir -p frontend/public/data
+            echo '[{"id":"1","source":"placeholder","url":"#","title":"En cours de chargement...","brand":"—","model":null,"price":null,"year":null,"mileage":null,"fuelType":null,"transmission":null,"city":null,"phone":null,"imageUrl":null,"sellerType":null,"scrapedAt":null}]' > frontend/public/data/listings.json
+          fi
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install frontend dependencies
+        run: cd frontend && npm ci
+
+      - name: Build static site
+        run: cd frontend && npm run build
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: frontend/out
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+      - name: Commit updated data
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add data/voiturepremium.db frontend/public/data/listings.json
+          git diff --staged --quiet || git commit -m "chore: update scraped data $(date -u +%Y-%m-%d)"
+          git push
