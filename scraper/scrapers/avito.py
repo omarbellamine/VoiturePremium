@@ -12,6 +12,7 @@ Data path (detail):  props.pageProps.componentProps.adInfo.ad
 import json
 import logging
 import re
+from datetime import datetime, timedelta
 from typing import Optional
 
 from scrapers.base import BaseScraper
@@ -201,17 +202,19 @@ class AvitoScraper(BaseScraper):
             date_val = ad.get("date")
             if date_val:
                 if isinstance(date_val, str):
-                    posted_at = date_val
+                    posted_at = self._parse_relative_date(date_val)
                 elif isinstance(date_val, dict):
-                    posted_at = date_val.get("timestamp") or date_val.get("date")
+                    raw = date_val.get("timestamp") or date_val.get("date") or ""
+                    posted_at = self._parse_relative_date(str(raw)) if raw else None
             if not posted_at:
                 for date_key in ("time", "createdAt", "publishedAt",
                                  "created_at", "published_at", "listTime",
                                  "creation_date", "dateInserted"):
                     val = ad.get(date_key)
                     if val and isinstance(val, str):
-                        posted_at = val
-                        break
+                        posted_at = self._parse_relative_date(val)
+                        if posted_at:
+                            break
 
             listing = {
                 "url": detail_url,
@@ -235,6 +238,50 @@ class AvitoScraper(BaseScraper):
 
         except Exception as e:
             logger.error(f"[avito] Error parsing ad: {e}", exc_info=True)
+
+    @staticmethod
+    def _parse_relative_date(text: str) -> Optional[str]:
+        """Convert French relative dates like 'il y a 2 heures' to ISO timestamps."""
+        if not text:
+            return None
+
+        # Already a valid date format (e.g. 2026-02-27 01:25:52)
+        try:
+            datetime.strptime(text, "%Y-%m-%d %H:%M:%S")
+            return text
+        except ValueError:
+            pass
+
+        # Parse French relative time: "il y a X minutes/heures/jours"
+        match = re.search(r"il y a\s+(\d+)\s+(minute|heure|jour|semaine|mois)", text, re.IGNORECASE)
+        if match:
+            amount = int(match.group(1))
+            unit = match.group(2).lower()
+            now = datetime.now()
+            if "minute" in unit:
+                dt = now - timedelta(minutes=amount)
+            elif "heure" in unit:
+                dt = now - timedelta(hours=amount)
+            elif "jour" in unit:
+                dt = now - timedelta(days=amount)
+            elif "semaine" in unit:
+                dt = now - timedelta(weeks=amount)
+            elif "mois" in unit:
+                dt = now - timedelta(days=amount * 30)
+            else:
+                return None
+            return dt.strftime("%Y-%m-%d %H:%M:%S")
+
+        # "hier" = yesterday
+        if "hier" in text.lower():
+            dt = datetime.now() - timedelta(days=1)
+            return dt.strftime("%Y-%m-%d %H:%M:%S")
+
+        # "aujourd'hui" = today
+        if "aujourd" in text.lower():
+            return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+        return text  # Return as-is, frontend will validate
 
     def _extract_model(self, title: str, brand: str) -> Optional[str]:
         if not title:

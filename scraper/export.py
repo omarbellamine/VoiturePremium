@@ -4,6 +4,7 @@ import json
 import os
 import hashlib
 import logging
+import re
 from datetime import datetime, timedelta
 
 from database import get_connection, get_all_listings
@@ -58,20 +59,90 @@ def filter_stale(listings: list[dict], max_age_months: int = MAX_AGE_MONTHS) -> 
     return kept
 
 
+def normalize_date(date_str: str | None) -> str | None:
+    """Normalize dates to YYYY-MM-DD HH:MM:SS format for JavaScript compatibility."""
+    if not date_str or not isinstance(date_str, str):
+        return None
+
+    date_str = date_str.strip()
+
+    # Already in YYYY-MM-DD HH:MM:SS format
+    try:
+        datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+        return date_str
+    except ValueError:
+        pass
+
+    # DD-MM-YYYY format (Moteur.ma)
+    match = re.match(r"^(\d{1,2})-(\d{1,2})-(\d{4})$", date_str)
+    if match:
+        day, month, year = match.groups()
+        return f"{year}-{month.zfill(2)}-{day.zfill(2)} 00:00:00"
+
+    # DD/MM/YYYY format
+    match = re.match(r"^(\d{1,2})/(\d{1,2})/(\d{4})$", date_str)
+    if match:
+        day, month, year = match.groups()
+        return f"{year}-{month.zfill(2)}-{day.zfill(2)} 00:00:00"
+
+    # French relative dates (leftover from Avito)
+    rel_match = re.search(r"il y a\s+(\d+)\s+(minute|heure|jour|semaine|mois)", date_str, re.IGNORECASE)
+    if rel_match:
+        amount = int(rel_match.group(1))
+        unit = rel_match.group(2).lower()
+        now = datetime.now()
+        if "minute" in unit:
+            dt = now - timedelta(minutes=amount)
+        elif "heure" in unit:
+            dt = now - timedelta(hours=amount)
+        elif "jour" in unit:
+            dt = now - timedelta(days=amount)
+        elif "semaine" in unit:
+            dt = now - timedelta(weeks=amount)
+        elif "mois" in unit:
+            dt = now - timedelta(days=amount * 30)
+        else:
+            return None
+        return dt.strftime("%Y-%m-%d %H:%M:%S")
+
+    if "hier" in date_str.lower():
+        return (datetime.now() - timedelta(days=1)).strftime("%Y-%m-%d %H:%M:%S")
+
+    if "aujourd" in date_str.lower():
+        return datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+    # Can't parse — drop it
+    return None
+
+
+PLACEHOLDER_IMAGES = {
+    "annonce-sans-photo",
+    "no-photo",
+    "no-image",
+    "placeholder",
+    "default-car",
+}
+
+
 def filter_no_image(listings: list[dict]) -> list[dict]:
-    """Remove listings without an image."""
+    """Remove listings without a real image (including placeholder images)."""
     kept = []
     removed = 0
 
     for listing in listings:
-        img = listing.get("image_url")
-        if img and img.strip():
-            kept.append(listing)
-        else:
+        img = (listing.get("image_url") or "").strip()
+        if not img:
             removed += 1
+            continue
+        # Filter out known placeholder images
+        img_lower = img.lower()
+        if any(ph in img_lower for ph in PLACEHOLDER_IMAGES):
+            removed += 1
+            continue
+        kept.append(listing)
 
     if removed:
-        logger.info(f"Filtered out {removed} listings without images")
+        logger.info(f"Filtered out {removed} listings without real images")
     return kept
 
 
@@ -117,7 +188,7 @@ def export_to_json(db_path: str = None, output_path: str = None):
             "phone": listing.get("phone"),
             "imageUrl": listing.get("image_url"),
             "sellerType": listing.get("seller_type"),
-            "postedAt": listing.get("posted_at"),
+            "postedAt": normalize_date(listing.get("posted_at")),
             "description": listing.get("description"),
             "scrapedAt": listing.get("scraped_at"),
         })
