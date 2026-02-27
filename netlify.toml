@@ -1,4 +1,4 @@
 [build]
   base = "frontend"
-  command = "npm run build"
-  publish = "out"
+  command = "npm run build && mkdir -p deploy/voiturepremium && cp -r out/* deploy/voiturepremium/"
+  publish = "deploy"
