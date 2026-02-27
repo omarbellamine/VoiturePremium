@@ -56,6 +56,12 @@ export function applyFilters(listings: Listing[], filters: Filters): Listing[] {
     });
   }
 
+  // Deal score minimum
+  if (filters.dealScoreMin) {
+    const min = parseFloat(filters.dealScoreMin);
+    result = result.filter((l) => l.dealScore != null && l.dealScore >= min);
+  }
+
   // Sort
   result = sortListings(result, filters.sortBy);
 
@@ -64,6 +70,8 @@ export function applyFilters(listings: Listing[], filters: Filters): Listing[] {
 
 function sortListings(listings: Listing[], sortBy: string): Listing[] {
   switch (sortBy) {
+    case "deal_desc":
+      return listings.sort((a, b) => (b.dealScore || 0) - (a.dealScore || 0));
     case "price_asc":
       return listings.sort((a, b) => (a.price || a.estimatedPrice || 0) - (b.price || b.estimatedPrice || 0));
     case "price_desc":

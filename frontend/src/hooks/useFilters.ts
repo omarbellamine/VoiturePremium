@@ -32,6 +32,7 @@ export function useFilters(listings: Listing[]) {
     if (filters.yearMax) count++;
     if (filters.priceMin) count++;
     if (filters.priceMax) count++;
+    if (filters.dealScoreMin) count++;
     if (filters.search) count++;
     return count;
   }, [filters]);

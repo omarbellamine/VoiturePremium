@@ -37,6 +37,7 @@ const BRAND_MAINTENANCE: Record<string, { base: number; tier: string }> = {
   "mini": { base: 5000, tier: "Accessible" },
   "ds": { base: 4000, tier: "Accessible" },
   "alfa romeo": { base: 6000, tier: "Premium" },
+  "tesla": { base: 3000, tier: "Electric" },
 };
 
 // Fuel costs per 100km in MAD (Morocco prices ~13 MAD/L diesel, ~15 MAD/L essence)
@@ -44,6 +45,8 @@ const FUEL_CONSUMPTION: Record<string, { l100km: number; pricePerL: number }> = 
   diesel: { l100km: 7.5, pricePerL: 13 },
   essence: { l100km: 9.5, pricePerL: 15 },
   hybride: { l100km: 5.5, pricePerL: 15 },
+  electrique: { l100km: 18, pricePerL: 1.5 }, // 18 kWh/100km at ~1.5 MAD/kWh
+  électrique: { l100km: 18, pricePerL: 1.5 },
 };
 
 // Insurance brackets based on vehicle value (MAD/year)

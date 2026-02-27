@@ -189,6 +189,19 @@ const BRAND_HISTORIES: Record<string, BrandHistory> = {
       "Design italien passionné — parmi les plus belles lignes du marché",
     ],
   },
+  "tesla": {
+    founded: "2003",
+    country: "États-Unis",
+    motto: "Accelerating the world's transition to sustainable energy",
+    summary: "Tesla a révolutionné l'industrie automobile en rendant les voitures électriques désirables et performantes. Fondée par Martin Eberhard et Marc Tarpenning, puis propulsée par Elon Musk, Tesla est devenue le constructeur automobile le plus valorisé au monde. La Model 3 et la Model Y sont désormais parmi les voitures les plus vendues de la planète.",
+    highlights: [
+      "Model S — a prouvé qu'une électrique peut être une berline de luxe performante",
+      "Model 3 — démocratisation de l'électrique premium, best-seller mondial",
+      "Autopilot / FSD — système d'aide à la conduite le plus avancé",
+      "Réseau Superchargeurs — le plus grand réseau de recharge rapide au monde",
+      "Mises à jour OTA — nouvelles fonctionnalités ajoutées à distance gratuitement",
+    ],
+  },
 };
 
 export function getBrandHistory(brand: string): BrandHistory | null {

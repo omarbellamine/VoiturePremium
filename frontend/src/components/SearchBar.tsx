@@ -24,11 +24,13 @@ export default function SearchBar({ value, onChange }: SearchBarProps) {
   };
 
   return (
-    <div className={`relative group transition-all duration-300 ${isFocused ? "scale-[1.01]" : ""}`}>
-      <div className={`absolute -inset-0.5 rounded-xl bg-gradient-to-r from-gold/20 via-gold/10 to-gold/20 opacity-0 blur transition-opacity duration-300 ${isFocused ? "opacity-100" : "group-hover:opacity-50"}`} />
+    <div className={`relative group transition-all duration-500 ${isFocused ? "scale-[1.02]" : ""}`}>
+      {/* Outer glow */}
+      <div className={`absolute -inset-1 rounded-2xl bg-gradient-to-r from-gold/20 via-gold/5 to-gold/20 opacity-0 blur-lg transition-all duration-500 ${isFocused ? "opacity-100 -inset-2" : "group-hover:opacity-40"}`} />
+
       <div className="relative">
         <svg
-          className={`absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-200 ${isFocused ? "text-gold" : "text-zinc-500"}`}
+          className={`absolute left-5 top-1/2 -translate-y-1/2 w-5 h-5 transition-colors duration-300 ${isFocused ? "text-gold" : "text-zinc-600"}`}
           fill="none"
           stroke="currentColor"
           viewBox="0 0 24 24"
@@ -36,7 +38,7 @@ export default function SearchBar({ value, onChange }: SearchBarProps) {
           <path
             strokeLinecap="round"
             strokeLinejoin="round"
-            strokeWidth={2}
+            strokeWidth={1.5}
             d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
           />
         </svg>
@@ -47,7 +49,7 @@ export default function SearchBar({ value, onChange }: SearchBarProps) {
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder="Rechercher par marque, modèle, ville..."
-          className="w-full pl-12 pr-12 py-4 bg-surface-light border border-white/[0.06] rounded-xl text-white placeholder-zinc-500 focus:outline-none focus:border-gold/40 transition-all text-[15px]"
+          className="w-full pl-14 pr-14 py-5 glass rounded-2xl text-white placeholder-zinc-600 focus:outline-none transition-all duration-300 text-[15px] font-medium focus-gold"
         />
         {localValue && (
           <button
@@ -55,7 +57,7 @@ export default function SearchBar({ value, onChange }: SearchBarProps) {
               setLocalValue("");
               onChange("");
             }}
-            className="absolute right-4 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-white transition-colors p-0.5"
+            className="absolute right-5 top-1/2 -translate-y-1/2 text-zinc-600 hover:text-white transition-colors duration-200 p-1 rounded-lg hover:bg-white/[0.04]"
           >
             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />

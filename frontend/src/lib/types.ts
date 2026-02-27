@@ -36,18 +36,20 @@ export interface Filters {
   yearMax: string;
   priceMin: string;
   priceMax: string;
+  dealScoreMin: string;
   sortBy: string;
   search: string;
 }
 
 export const SORT_OPTIONS = [
   { value: "date_desc", label: "Plus récentes" },
-  { value: "date_asc", label: "Plus anciennes" },
+  { value: "deal_desc", label: "Meilleurs deals" },
   { value: "price_asc", label: "Prix croissant" },
   { value: "price_desc", label: "Prix décroissant" },
   { value: "year_desc", label: "Année décroissante" },
   { value: "year_asc", label: "Année croissante" },
   { value: "mileage_asc", label: "Kilométrage croissant" },
+  { value: "date_asc", label: "Plus anciennes" },
 ];
 
 export const DEFAULT_FILTERS: Filters = {
@@ -58,6 +60,7 @@ export const DEFAULT_FILTERS: Filters = {
   yearMax: "",
   priceMin: "",
   priceMax: "",
+  dealScoreMin: "",
   sortBy: "date_desc",
   search: "",
 };

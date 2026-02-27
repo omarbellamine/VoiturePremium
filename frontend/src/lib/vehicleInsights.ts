@@ -158,6 +158,18 @@ const BRAND_INSIGHTS: Record<string, VehicleInsight[]> = {
     { text: "Décote importante à la revente", type: "con", category: "valeur" },
     { text: "Pièces spécifiques coûteuses et difficiles à trouver", type: "con", category: "entretien" },
   ],
+  "tesla": [
+    { text: "Accélération fulgurante — performances électriques instantanées", type: "pro", category: "performance" },
+    { text: "Coût d'énergie très bas — recharge bien moins chère que le carburant", type: "pro", category: "entretien" },
+    { text: "Mises à jour logicielles OTA — la voiture s'améliore avec le temps", type: "pro", category: "confort" },
+    { text: "Autopilot — assistance à la conduite avancée", type: "pro", category: "securite" },
+    { text: "Entretien minimal — pas de vidange, pas de courroie, freins régénératifs", type: "pro", category: "entretien" },
+    { text: "Réseau Superchargeurs limité au Maroc — planification nécessaire", type: "con", category: "entretien" },
+    { text: "Aucun réseau officiel Tesla au Maroc — SAV et pièces compliqués", type: "con", category: "entretien" },
+    { text: "Qualité de finition inégale — écarts de panneaux, bruits d'habitacle", type: "con", category: "fiabilite" },
+    { text: "Batterie — capacité diminue avec le temps, remplacement très coûteux", type: "con", category: "fiabilite" },
+    { text: "Valeur de revente incertaine au Maroc — marché encore immature", type: "con", category: "valeur" },
+  ],
 };
 
 // Dynamic insights based on vehicle attributes
