@@ -11,8 +11,14 @@ function formatPrice(price: number | null): string {
 }
 
 function formatMileage(km: number | null): string {
-  if (!km) return "";
+  if (km == null || km <= 0) return "";
   return new Intl.NumberFormat("fr-MA").format(km) + " km";
+}
+
+function formatDate(dateStr: string): string | null {
+  const d = new Date(dateStr);
+  if (isNaN(d.getTime())) return null;
+  return d.toLocaleDateString("fr-FR", { day: "numeric", month: "short" });
 }
 
 const SOURCE_STYLES: Record<string, { bg: string; dot: string; label: string }> = {
@@ -115,7 +121,7 @@ export default function ListingCard({ listing }: ListingCardProps) {
               {listing.year}
             </span>
           )}
-          {listing.mileage && (
+          {listing.mileage != null && listing.mileage > 0 && (
             <span className="inline-flex items-center gap-1 text-[11px] text-zinc-400 bg-white/[0.03] px-2 py-1 rounded-lg">
               <svg className="w-3 h-3 text-zinc-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
@@ -142,11 +148,13 @@ export default function ListingCard({ listing }: ListingCardProps) {
                 <span className="text-zinc-400">{listing.city}</span>
               </div>
             )}
-            {(listing.postedAt || listing.scrapedAt) && (
-              <span className="text-zinc-600 text-[10px]">
-                {new Date(listing.postedAt || listing.scrapedAt!).toLocaleDateString("fr-FR", { day: "numeric", month: "short" })}
-              </span>
-            )}
+            {(() => {
+              const dateStr = listing.postedAt || listing.scrapedAt;
+              const formatted = dateStr ? formatDate(dateStr) : null;
+              return formatted ? (
+                <span className="text-zinc-600 text-[10px]">{formatted}</span>
+              ) : null;
+            })()}
           </div>
         )}
       </div>

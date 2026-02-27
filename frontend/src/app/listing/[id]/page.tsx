@@ -203,12 +203,12 @@ export default function ListingDetailPage({
               />
 
               <div className="text-[11px] text-zinc-600 text-center pt-3 border-t border-white/[0.04] space-y-1">
-                {listing.postedAt && (
+                {listing.postedAt && !isNaN(new Date(listing.postedAt).getTime()) && (
                   <p>
                     Publié le : <span className="text-zinc-400">{new Date(listing.postedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</span>
                   </p>
                 )}
-                {listing.scrapedAt && (
+                {listing.scrapedAt && !isNaN(new Date(listing.scrapedAt).getTime()) && (
                   <p>
                     Dernière vérification : {new Date(listing.scrapedAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}
                   </p>
