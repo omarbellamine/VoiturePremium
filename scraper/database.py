@@ -33,6 +33,7 @@ def init_db(conn: sqlite3.Connection):
             city TEXT,
             phone TEXT,
             image_url TEXT,
+            images TEXT,
             seller_type TEXT,
             posted_at TEXT,
             description TEXT,
@@ -45,6 +46,11 @@ def init_db(conn: sqlite3.Connection):
     conn.execute("""
         CREATE INDEX IF NOT EXISTS idx_listings_source ON listings(source)
     """)
+    # Add images column if missing (migration for existing DBs)
+    try:
+        conn.execute("SELECT images FROM listings LIMIT 1")
+    except sqlite3.OperationalError:
+        conn.execute("ALTER TABLE listings ADD COLUMN images TEXT")
     conn.commit()
 
 
@@ -59,7 +65,8 @@ def upsert_listing(conn: sqlite3.Connection, listing: dict) -> bool:
             UPDATE listings SET
                 title = ?, brand = ?, model = ?, price = ?, year = ?,
                 mileage = ?, fuel_type = ?, transmission = ?, city = ?,
-                phone = ?, image_url = ?, seller_type = ?, posted_at = COALESCE(?, posted_at),
+                phone = ?, image_url = ?, images = COALESCE(?, images),
+                seller_type = ?, posted_at = COALESCE(?, posted_at),
                 description = COALESCE(?, description),
                 scraped_at = CURRENT_TIMESTAMP
             WHERE url = ?
@@ -68,6 +75,7 @@ def upsert_listing(conn: sqlite3.Connection, listing: dict) -> bool:
             listing.get("price"), listing.get("year"), listing.get("mileage"),
             listing.get("fuel_type"), listing.get("transmission"),
             listing.get("city"), listing.get("phone"), listing.get("image_url"),
+            listing.get("images"),
             listing.get("seller_type"), listing.get("posted_at"),
             listing.get("description"), listing["url"],
         ))
@@ -78,14 +86,15 @@ def upsert_listing(conn: sqlite3.Connection, listing: dict) -> bool:
             INSERT INTO listings (
                 source, source_id, url, title, brand, model, price, year,
                 mileage, fuel_type, transmission, city, phone, image_url,
-                seller_type, posted_at, description
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                images, seller_type, posted_at, description
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """, (
             listing.get("source"), listing.get("source_id"), listing["url"],
             listing.get("title"), listing.get("brand"), listing.get("model"),
             listing.get("price"), listing.get("year"), listing.get("mileage"),
             listing.get("fuel_type"), listing.get("transmission"),
             listing.get("city"), listing.get("phone"), listing.get("image_url"),
+            listing.get("images"),
             listing.get("seller_type"), listing.get("posted_at"),
             listing.get("description"),
         ))

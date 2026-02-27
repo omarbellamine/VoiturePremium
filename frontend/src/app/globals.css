@@ -212,6 +212,15 @@ input[type="number"] {
   50%, 100% { transform: translateX(100%); }
 }
 
+/* Hide scrollbar for thumbnail strip */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
 @layer utilities {
   .text-balance {
     text-wrap: balance;

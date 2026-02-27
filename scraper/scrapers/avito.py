@@ -143,11 +143,13 @@ class AvitoScraper(BaseScraper):
                 if phone_data and isinstance(phone_data, dict):
                     phone = phone_data.get("number")
 
-            # Images
+            # Images — capture all photos
+            all_images = ad.get("images", [])
             image_url = ad.get("defaultImage")
-            images = ad.get("images", [])
-            if images and not image_url:
-                image_url = images[0]
+            if not image_url and all_images:
+                image_url = all_images[0]
+            # Store full list as JSON string
+            images_json = json.dumps(all_images) if all_images else None
 
             # Location
             location = ad.get("location", "")
@@ -229,6 +231,7 @@ class AvitoScraper(BaseScraper):
                 "city": city,
                 "phone": self.clean_phone(str(phone)) if phone else None,
                 "image_url": image_url,
+                "images": images_json,
                 "seller_type": seller_type,
                 "source_id": ad_id,
                 "posted_at": posted_at,

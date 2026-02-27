@@ -13,6 +13,7 @@ export interface Listing {
   city: string | null;
   phone: string | null;
   imageUrl: string | null;
+  images: string[] | null;
   sellerType: string | null;
   postedAt: string | null;
   description: string | null;

@@ -187,6 +187,7 @@ def export_to_json(db_path: str = None, output_path: str = None):
             "city": listing.get("city"),
             "phone": listing.get("phone"),
             "imageUrl": listing.get("image_url"),
+            "images": json.loads(listing["images"]) if listing.get("images") else None,
             "sellerType": listing.get("seller_type"),
             "postedAt": normalize_date(listing.get("posted_at")),
             "description": listing.get("description"),
