@@ -1,16 +1,39 @@
 "use client";
 
+import { useState, useEffect, useRef } from "react";
 import { getAllListings, getUniqueBrands, getUniqueCities, getUniqueFuelTypes } from "@/lib/data";
 import { useFilters } from "@/hooks/useFilters";
 import SearchBar from "@/components/SearchBar";
 import FilterBar from "@/components/FilterBar";
 import QuickFilters from "@/components/QuickFilters";
 import ListingGrid from "@/components/ListingGrid";
+import Pagination from "@/components/Pagination";
+
+const ITEMS_PER_PAGE = 24;
 
 export default function HomePage() {
   const allListings = getAllListings();
   const { filters, filteredListings, updateFilter, resetFilters, activeFilterCount } =
     useFilters(allListings);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const gridRef = useRef<HTMLDivElement>(null);
+
+  const totalPages = Math.ceil(filteredListings.length / ITEMS_PER_PAGE);
+  const paginatedListings = filteredListings.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE
+  );
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [filteredListings.length]);
+
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+    gridRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
 
   const brands = getUniqueBrands(allListings);
   const cities = getUniqueCities(allListings);
@@ -96,19 +119,29 @@ export default function HomePage() {
         </div>
 
         {/* Divider + results count */}
-        <div className="flex items-center gap-4 mb-8">
+        <div ref={gridRef} className="flex items-center gap-4 mb-8 scroll-mt-24">
           <div className="h-px flex-1 bg-white/[0.04]" />
           <p className="text-xs font-medium text-zinc-500 tracking-wide">
             {filteredListings.length} résultat{filteredListings.length !== 1 ? "s" : ""}
+            {totalPages > 1 && (
+              <span className="text-zinc-600"> — page {currentPage}/{totalPages}</span>
+            )}
           </p>
           <div className="h-px flex-1 bg-white/[0.04]" />
         </div>
 
         {/* Grid */}
-        <ListingGrid listings={filteredListings} />
+        <ListingGrid listings={paginatedListings} />
+
+        {/* Pagination */}
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
 
         {/* Bottom spacer */}
-        <div className="h-20" />
+        <div className="h-12" />
       </div>
     </div>
   );
