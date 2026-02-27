@@ -171,7 +171,7 @@ class AvitoScraper(BaseScraper):
             for param in all_params:
                 key = (param.get("key") or "").lower()
                 value = param.get("value")
-                if not value:
+                if value is None or value == "":
                     continue
                 if key == "regdate":
                     year = value
@@ -179,8 +179,13 @@ class AvitoScraper(BaseScraper):
                     fuel = value
                 elif key in ("bv", "gearbox", "transmission"):
                     transmission = value
-                elif key in ("mileage_exact", "mileage", "km", "kilometrage"):
+                elif key in ("mileage_exact", "mileage", "km", "kilometrage",
+                             "odometer", "kilometres"):
                     mileage = str(value)
+
+            if not mileage:
+                logger.debug(f"[avito] No mileage found for '{title}', params: "
+                             f"{[(p.get('key'), p.get('value')) for p in all_params]}")
 
             # Seller type
             seller_type = None
@@ -191,15 +196,22 @@ class AvitoScraper(BaseScraper):
                 elif stype:
                     seller_type = "Particulier"
 
-            # Posted date — try common Avito JSON fields
+            # Posted date
             posted_at = None
-            for date_key in ("date", "time", "createdAt", "publishedAt",
-                             "created_at", "published_at", "listTime",
-                             "creation_date", "dateInserted"):
-                val = ad.get(date_key)
-                if val and isinstance(val, str):
-                    posted_at = val
-                    break
+            date_val = ad.get("date")
+            if date_val:
+                if isinstance(date_val, str):
+                    posted_at = date_val
+                elif isinstance(date_val, dict):
+                    posted_at = date_val.get("timestamp") or date_val.get("date")
+            if not posted_at:
+                for date_key in ("time", "createdAt", "publishedAt",
+                                 "created_at", "published_at", "listTime",
+                                 "creation_date", "dateInserted"):
+                    val = ad.get(date_key)
+                    if val and isinstance(val, str):
+                        posted_at = val
+                        break
 
             listing = {
                 "url": detail_url,
